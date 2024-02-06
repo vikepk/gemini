@@ -6,7 +6,7 @@ const User=require('./src/users/usersroutes');
 const { json } = require('body-parser');
 const userRouters = require('./src/users/usersroutes');
 const geminRouters=require('./src/gemini_request/geminiRoutes');
-const gemini=require('./src/gemini/app')
+//const gemini=require('./src/gemini/app')
 app.use(express.json());
 
 dotenv.config();

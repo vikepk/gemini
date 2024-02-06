@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const userSignUp=async (req,res)=>{
 
         var {name,email,phoneNumber,password}=req.body;
-        if(!name||!email||!phoneNumber||!password){res.status(404).send("Enter all Credentials")}
-         console.log(name,email,phoneNumber,password);
+        if(!name||!email||!phoneNumber||!password){res.status(404).send({message:"Enter all Credentials"})}
+       else{  console.log(name,email,phoneNumber,password);
        await bcrypt.hash(password,10).then((hash)=>{
             password=hash;
          })
@@ -15,6 +15,7 @@ const userSignUp=async (req,res)=>{
             console.log("User Created")
          }).catch((err)=>{console.log(err)})
          res.status(200).send("User Created");
+        }
 }
 
 const userSignIn=async (req,res)=>{

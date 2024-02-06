@@ -2,8 +2,9 @@
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:gemini/Features/login.dart';
-import 'package:gemini/Features/signup.dart';
+
+import 'package:gemini/features/authentication/Login.dart';
+import 'package:gemini/features/authentication/signup.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -41,17 +42,17 @@ class Welcome extends StatelessWidget {
                       )),
                 ],
               ),
-              FadeInUp(
-                  duration: const Duration(milliseconds: 1400),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 3,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        // place to add our image!
-                        image: AssetImage('assets/illustration.png'),
-                      ),
-                    ),
-                  )),
+              // FadeInUp(
+              //     duration: const Duration(milliseconds: 1400),
+              //     child: Container(
+              //       height: MediaQuery.of(context).size.height / 3,
+              //       decoration: const BoxDecoration(
+              //         image: DecorationImage(
+              //           // place to add our image!
+              //           image: AssetImage('assets/illustration.png'),
+              //         ),
+              //       ),
+              //     )),
               Column(
                 children: <Widget>[
                   FadeInUp(
@@ -64,7 +65,7 @@ class Welcome extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>  LoginPage()));
+                                  builder: (context) => LoginPage()));
                         },
                         shape: RoundedRectangleBorder(
                             side: const BorderSide(color: Colors.black),
@@ -90,7 +91,7 @@ class Welcome extends StatelessWidget {
                               left: BorderSide(color: Colors.black),
                               right: BorderSide(color: Colors.black),
                             )),
-                            // Signup button
+                        // Signup button
                         child: MaterialButton(
                           minWidth: double.infinity,
                           height: 60,
@@ -98,7 +99,7 @@ class Welcome extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>  SignupPage()));
+                                    builder: (context) => SignupPage()));
                           },
                           color: Colors.yellow,
                           elevation: 0,
