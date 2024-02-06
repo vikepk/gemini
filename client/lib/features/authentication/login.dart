@@ -2,9 +2,16 @@
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:gemini/Features/signup.dart';
+import 'package:gemini/features/authentication/signup.dart';
+import 'package:gemini/service/api_service.dart';
 
 class LoginPage extends StatelessWidget {
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  void signIn() {
+    ApiService().sign_in(email.text, password.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,11 +68,13 @@ class LoginPage extends StatelessWidget {
                       children: <Widget>[
                         FadeInUp(
                             duration: const Duration(milliseconds: 1200),
-                            child: makeInput(label: "Email")),
+                            child: makeInput(label: "Email", value: email)),
                         FadeInUp(
                             duration: const Duration(milliseconds: 1300),
                             child: makeInput(
-                                label: "Password", obscureText: true)),
+                                label: "Password",
+                                obscureText: true,
+                                value: password)),
                       ],
                     ),
                   ),
@@ -87,7 +96,10 @@ class LoginPage extends StatelessWidget {
                           child: MaterialButton(
                             minWidth: double.infinity,
                             height: 60,
-                            onPressed: () {},
+                            onPressed: () {
+                              signIn();
+                              //Have to call after validation
+                            },
                             color: Colors.greenAccent,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -123,22 +135,23 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
             ),
-            FadeInUp(
-                duration: const Duration(milliseconds: 1200),
-                child: Container(
-                  height: MediaQuery.of(context).size.height / 3,
-                  decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage('assets/background.png'),
-                          fit: BoxFit.cover)),
-                ))
+            // FadeInUp(
+            //     duration: const Duration(milliseconds: 1200),
+            //     child: Container(
+            //       height: MediaQuery.of(context).size.height / 3,
+            //       decoration: const BoxDecoration(
+            //           image: DecorationImage(
+            //               image: AssetImage('assets/background.png'),
+            //               fit: BoxFit.cover)),
+            //     ))
           ],
         ),
       ),
     );
   }
 
-  Widget makeInput({label, obscureText = false}) {
+  Widget makeInput(
+      {label, obscureText = false, required TextEditingController value}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -151,6 +164,7 @@ class LoginPage extends StatelessWidget {
           height: 5,
         ),
         TextField(
+          controller: value,
           obscureText: obscureText,
           decoration: InputDecoration(
             contentPadding:

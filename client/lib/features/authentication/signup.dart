@@ -1,10 +1,22 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:gemini/Features/login.dart';
+import 'package:gemini/features/authentication/login.dart';
+import 'package:gemini/main.dart';
+import 'package:gemini/service/api_service.dart';
 
 class SignupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    TextEditingController name = TextEditingController();
+    TextEditingController email = TextEditingController();
+    TextEditingController phoneNumber = TextEditingController();
+    TextEditingController password = TextEditingController();
+    void signUp() async {
+      await ApiService().sign_up(
+          context, name.text, email.text, password.text, phoneNumber.text);
+      print(prefs.getString("token"));
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
@@ -25,7 +37,7 @@ class SignupPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 40),
-          height: MediaQuery.of(context).size.height - 50,
+          // height: MediaQuery.of(context).size.height,
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -54,14 +66,23 @@ class SignupPage extends StatelessWidget {
                 children: <Widget>[
                   FadeInUp(
                       duration: Duration(milliseconds: 1200),
-                      child: makeInput(label: "Email")),
+                      child: makeInput(label: "Name", value: name)),
+                  FadeInUp(
+                      duration: Duration(milliseconds: 1200),
+                      child: makeInput(label: "Email", value: email)),
+                  FadeInUp(
+                      duration: Duration(milliseconds: 1200),
+                      child:
+                          makeInput(label: "Phone Number", value: phoneNumber)),
                   FadeInUp(
                       duration: Duration(milliseconds: 1300),
                       child: makeInput(label: "Password", obscureText: true)),
                   FadeInUp(
                       duration: Duration(milliseconds: 1400),
                       child: makeInput(
-                          label: "Confirm Password", obscureText: true)),
+                          label: "Confirm Password",
+                          obscureText: true,
+                          value: password)),
                 ],
               ),
               FadeInUp(
@@ -79,7 +100,9 @@ class SignupPage extends StatelessWidget {
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height: 60,
-                      onPressed: () {},
+                      onPressed: () {
+                        signUp();
+                      },
                       color: Colors.greenAccent,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -117,7 +140,7 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Widget makeInput({label, obscureText = false}) {
+  Widget makeInput({label, obscureText = false, TextEditingController? value}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -130,6 +153,7 @@ class SignupPage extends StatelessWidget {
           height: 5,
         ),
         TextField(
+          controller: value,
           obscureText: obscureText,
           decoration: InputDecoration(
             contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
