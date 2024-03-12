@@ -5,7 +5,7 @@ class NotifyUserMessage {
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> loginSucess(
       BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    return notifyType(context, "Login Sucessful");
+    return notifyType(context, "Login Successful");
   }
 
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> errMessage(

@@ -3,18 +3,22 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini/features/authentication/signup.dart';
+import 'package:gemini/features/home/home.dart';
 import 'package:gemini/service/api_service.dart';
+import 'package:gemini/utils/constant.dart';
+import 'package:gemini/utils/notifymessage.dart';
 
 class LoginPage extends StatelessWidget {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  void signIn() {
-    ApiService().sign_in(email.text, password.text);
-  }
 
   @override
   Widget build(BuildContext context) {
+    void signIn(email, password) async {
+      await ApiService().sign_in(context, email, password);
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -72,6 +76,7 @@ class LoginPage extends StatelessWidget {
                           FadeInUp(
                             duration: const Duration(milliseconds: 1200),
                             child: TextFormField(
+                              controller: email,
                               decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -91,6 +96,7 @@ class LoginPage extends StatelessWidget {
                           FadeInUp(
                             duration: const Duration(milliseconds: 1300),
                             child: TextFormField(
+                              controller: password,
                               decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12)),
@@ -128,15 +134,12 @@ class LoginPage extends StatelessWidget {
                                 if (_formKey.currentState!.validate()) {
                                   // If the form is valid, display a snackbar. In the real world,
                                   // you'd often call a server or save the information in a database.
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Processing Data')),
-                                  );
+                                  signIn(email.text, password.text);
                                 }
-                                signIn();
+
                                 //Have to call after validation
                               },
-                              color: Colors.greenAccent,
+                              color: KGreen,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50)),
