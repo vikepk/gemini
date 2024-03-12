@@ -5,10 +5,10 @@ const mongoose=require('mongoose');
 const User=require('./src/users/usersroutes');
 const { json } = require('body-parser');
 const userRouters = require('./src/users/usersroutes');
-const geminRouters=require('./src/gemini_request/geminiRoutes');
-//const gemini=require('./src/gemini/app')
+const geminiRouters=require('./src/gemini_request/geminiroutes');
+// const geminicmd=require('./src/gemini/app');
 app.use(express.json());
-
+app.use('/uploads',express.static('uploads'));
 dotenv.config();
 
 const dbURI='mongodb://localhost:27017/gemini';
@@ -19,5 +19,5 @@ console.log("Server listening....");
 app.get('/',(req,res)=>res.send('<h1>SERVER UP</h1>'));
 
 
-app.use(userRouters);
-app.use(geminRouters);
+app.use('/api/v1/users',userRouters);
+app.use('/api/v1/gemini',geminiRouters);

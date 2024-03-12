@@ -1,8 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini/features/authentication/login.dart';
-import 'package:gemini/main.dart';
 import 'package:gemini/service/api_service.dart';
+import 'package:gemini/utils/notifymessage.dart';
 
 class SignupPage extends StatelessWidget {
   @override
@@ -11,11 +11,11 @@ class SignupPage extends StatelessWidget {
     TextEditingController email = TextEditingController();
     TextEditingController phoneNumber = TextEditingController();
     TextEditingController password = TextEditingController();
+    TextEditingController confirmpassword = TextEditingController();
     final _formKey = GlobalKey<FormState>();
     void signUp() async {
       await ApiService().sign_up(
           context, name.text, email.text, password.text, phoneNumber.text);
-      print(prefs.getString("token"));
     }
 
     return Scaffold(
@@ -87,14 +87,15 @@ class SignupPage extends StatelessWidget {
                         child: makeInput(
                             label: "Password",
                             obscureText: true,
+                            value: password,
                             val_Msg: 'Password')),
                     FadeInUp(
                         duration: Duration(milliseconds: 1400),
                         child: makeInput(
                             label: "Confirm Password",
                             obscureText: true,
-                            value: password,
-                            val_Msg: 'Password')),
+                            value: confirmpassword,
+                            val_Msg: 'Confirm Password')),
                   ],
                 ),
                 FadeInUp(
@@ -112,14 +113,14 @@ class SignupPage extends StatelessWidget {
                       child: MaterialButton(
                         minWidth: double.infinity,
                         height: 60,
-                        onPressed: () {
-                          signUp();
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            // If the form is valid, display a snackbar. In the real world,
-                            // you'd often call a server or save the information in a database.
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing Data')),
-                            );
+                            if (password.text == confirmpassword.text) {
+                              signUp();
+                            } else {
+                              NotifyUserMessage.notifyType(
+                                  context, "Password doesn't Match");
+                            }
                           }
                         },
                         color: Colors.greenAccent,

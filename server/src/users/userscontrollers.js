@@ -3,28 +3,38 @@ const bcrypt=require("bcrypt");
 const jwt = require('jsonwebtoken');
 
 const userSignUp=async (req,res)=>{
-
+try{
         var {name,email,phoneNumber,password}=req.body;
-        if(!name||!email||!phoneNumber||!password){res.status(404).send({message:"Enter all Credentials"})}
+        if(!name||!email||!phoneNumber||!password){res.status(400).send({message:"Enter all Credentials"})}
        else{  console.log(name,email,phoneNumber,password);
        await bcrypt.hash(password,10).then((hash)=>{
             password=hash;
          })
          const user=new User({name,phoneNumber,email,password});
          user.save().then((result)=>{
-            console.log("User Created")
-         }).catch((err)=>{console.log(err)})
-         res.status(200).send("User Created");
+            console.log("User Created");
+         }).catch((err)=>{
+            console.log(err);
+            res.status(500).send({message:"Something went Wrong Try Again Later"})
+        })
+         res.status(200).send({message:"User Created"});
         }
+    }
+    catch(e){
+        throw Error (e);
+    }
 }
 
 const userSignIn=async (req,res)=>{
     const{email,password}=req.body;
-
-    if(!email,!password){res.status(404).send("Enter all Credentials")}
+try{
+    if(!email,!password){
+        res.status(400).send({message:"Enter all Credentials"})
+    }
+    else{
     const user=await User.findOne({email:email})
  
-   if(!user){res.status(400).send("User does not Exist")}
+   if(!user){res.status(400).send({message:"User does not Exist"})}
 else{
     const ispassword=  await bcrypt.compare(password, user.password);
 
@@ -32,11 +42,17 @@ else{
         let jwtSecretKey = process.env.JWT_SECRET_KEY;
         let data={name:user.name,email:user.email}
         const token=jwt.sign(data,jwtSecretKey);
-        //console.log(jwt.decode(token))
-        res.status(200).send({token:token})}
+        console.log(jwt.decode(token));
+        res.status(200).send({token:token,message:"Login Successful"})}
     else{
-        res.status(400).send("Wrong Credentials")
+        res.status(400).send({message:"Incorrect Password"})
     }
+}
+    }
+}
+catch(e){
+    console.log(e);
+    res.status(500).send({message:"Something wrong Try Again Later"})
 }
 }
 const verifyToken=async (req,res)=>{
@@ -57,7 +73,7 @@ const verifyToken=async (req,res)=>{
             }
             req.decoded = decoded;
             console.log(decoded);
-           
+            res.status(200).send({message:"Access Granted"})
             });
             } else {
             return res.status(403).json({

@@ -1,7 +1,7 @@
 const mongoose=require('mongoose');
 
 const GeminiSchema=mongoose.Schema({
-    user_email:{
+    email:{
         type:String,
         required:true
     },
@@ -12,6 +12,10 @@ const GeminiSchema=mongoose.Schema({
     answer:{
         type:String,
         required:true
+    },
+    imgName:{
+        type:String,
+        required:false
     }
 },{timestamps:true});
 
