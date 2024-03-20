@@ -37,12 +37,12 @@ const textRequest=async (req,res)=>{
       const answer= await geminiAPI_text(question);
     const  geminidb=new Gemini({email:email,question:question,answer:answer});
       geminidb.save().then((result)=>{
-        res.status(200).send({answer:answer});
-      }).catch((err)=>{res.status(500).send({message:`${err.toString()}`})})
+        return res.status(200).send({answer:answer});
+      }).catch((err)=>{return res.status(500).send({message:`${err.toString()}`})})
       
     }
     else{
-        res.status(400).send({message:"Invalid Question "})
+        return res.status(400).send({message:"Invalid Question "})
     }
 
 }
@@ -63,7 +63,6 @@ if(!req.file) {
 const {prompt,email}=req.body;
 
 if(prompt&&email){
-  console.log(req.file.path)
   const image={
     inlineData:{
       data: Buffer.from(fs.readFileSync(req.file.path)).toString("base64"),
@@ -73,17 +72,17 @@ if(prompt&&email){
   const answer= await geminiAPI_image(prompt,image);
 
   if (answer instanceof Error) {
-    res.status(500).send({err:"Gemimi Causes Error Try Again Later"})
+    return res.status(500).send({err:"Gemimi Causes Error Try Again Later"})
   }
   else{
 const  geminidb=new Gemini({email:email,question:prompt,answer:answer,imgName:`http://localhost:${3000}/uploads/${req.file.filename}`});
 geminidb.save().then((result)=>{
-    res.status(200).send({answer:answer})
-  }).catch((err)=>{res.status(500).send({message:"Something went Wrong. Try again Later"})});
+  return res.status(200).send({answer:answer})
+  }).catch((err)=>{return res.status(500).send({message:"Something went Wrong. Try again Later"})});
 }
 }
 else{
-  res.status(400).send({message:"Enter required Data"})
+  return res.status(400).send({message:"Enter required Data"})
 }
 }
 
@@ -92,12 +91,12 @@ const getAllConversation=async(req,res)=>{
   if(email){
     try{
   const allConvs=await Gemini.find({email:email});
-  res.status(200).send({conversation:allConvs})
+  return res.status(200).send({conversation:allConvs})
   }
- catch(err){res.status(500).send({message:err.toString()})};
+ catch(err){return res.status(500).send({message:err.toString()})};
 }
 else{
-  res.status(400).send({message:"Email Required"})
+  return res.status(400).send({message:"Email Required"})
 }
 }
 
@@ -107,12 +106,12 @@ const getAllQuestions=async(req,res)=>{
   if(email){
     try{
   const allQns=await Gemini.find({email:email}).select("question").sort({createdAt:-1});
-  res.status(200).send({conversation:allQns})
+  return res.status(200).send({conversation:allQns})
   }
- catch(err){res.status(500).send({message:err.toString()})};
+ catch(err){return res.status(500).send({message:err.toString()})};
 }
 else{
-  res.status(400).send({message:"Email Required"})
+  return res.status(400).send({message:"Email Required"})
 }
 }
 
