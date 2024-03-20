@@ -2,7 +2,7 @@ const Gemini=require('./geminiSchema');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const fs=require('fs');
-const path = require('path');
+const User =require('../users/userSchema')
 
 async function geminiAPI_text(question){
   const model=genAI.getGenerativeModel({model: "gemini-pro"})
@@ -13,6 +13,7 @@ async function geminiAPI_text(question){
   }
     catch(e){
     console.log(e.toString());
+    return e;
   
   }
 }
@@ -25,25 +26,32 @@ async function geminiAPI_image(prompt,image){
   const response=geminiAnswer.response;
   return response.text();
   }
-  catch(err){
-  return err;
+  catch(e){
+  console.log(e);
+  return e;
   }
 }
 
 
 const textRequest=async (req,res)=>{
     const {question,email}=req.body;
-    if(question&&email){
-      const answer= await geminiAPI_text(question);
+    if(!question||!email){
+     return res.status(400).send({message:"Invalid Question"}); 
+    }
+    if(!await userExists(email)){
+      return res.status(400).send({message:"User does not Exist"});
+   }
+    const answer= await geminiAPI_text(question);
+    if (answer instanceof Error){
+      return res.status(500).send({message:"Try again later"});
+    }
     const  geminidb=new Gemini({email:email,question:question,answer:answer});
       geminidb.save().then((result)=>{
         return res.status(200).send({answer:answer});
-      }).catch((err)=>{return res.status(500).send({message:`${err.toString()}`})})
-      
-    }
-    else{
-        return res.status(400).send({message:"Invalid Question "})
-    }
+      }).catch((err)=>{
+        console.log(err);
+        return res.status(500).send({message:`Try Again Later`});
+      });
 
 }
 
@@ -62,7 +70,12 @@ if(!req.file) {
 }
 const {prompt,email}=req.body;
 
-if(prompt&&email){
+if(!prompt||!email){
+  return res.status(400).send({message:"Enter required Data"});
+}
+if(!await userExists(email)){
+  return res.status(400).send({message:"User does not Exist"});
+}
   const image={
     inlineData:{
       data: Buffer.from(fs.readFileSync(req.file.path)).toString("base64"),
@@ -72,49 +85,66 @@ if(prompt&&email){
   const answer= await geminiAPI_image(prompt,image);
 
   if (answer instanceof Error) {
-    return res.status(500).send({err:"Gemimi Causes Error Try Again Later"})
+   return res.status(500).send({err:"Try Again Later"})
   }
-  else{
-const  geminidb=new Gemini({email:email,question:prompt,answer:answer,imgName:`http://localhost:${3000}/uploads/${req.file.filename}`});
+
+const  geminidb=new Gemini({email:email,question:prompt,answer:answer,imgName:`${process.env.BASE_URL}/uploads/${req.file.filename}`});
 geminidb.save().then((result)=>{
-  return res.status(200).send({answer:answer})
-  }).catch((err)=>{return res.status(500).send({message:"Something went Wrong. Try again Later"})});
-}
-}
-else{
-  return res.status(400).send({message:"Enter required Data"})
-}
+    return res.status(200).send({answer:answer})
+  }).catch((err)=>{
+    console.log(err);
+    return res.status(500).send({message:"Something went Wrong. Try again Later"})});
+
+
+
 }
 
 const getAllConversation=async(req,res)=>{
   const {email}=req.body;
-  if(email){
+  if(!email){
+    res.status(400).send({message:"Email Required"});
+  }
+  if(!await userExists(email)){
+    return res.status(400).send({message:"User does not Exist"});
+ }
     try{
   const allConvs=await Gemini.find({email:email});
   return res.status(200).send({conversation:allConvs})
   }
- catch(err){return res.status(500).send({message:err.toString()})};
+ catch(err){
+  console.log(err);
+  return res.status(500).send({message:"Try Again Later"})};
 }
-else{
-  return res.status(400).send({message:"Email Required"})
-}
-}
+
+
 
 
 const getAllQuestions=async(req,res)=>{
   const{email}=req.body;
-  if(email){
-    try{
+  if(!email){
+    return res.status(400).send({message:"Email Required"});
+  }
+  if(!await userExists(email)){
+     return res.status(400).send({message:"User does not Exist"});
+  }
+  try{
   const allQns=await Gemini.find({email:email}).select("question").sort({createdAt:-1});
   return res.status(200).send({conversation:allQns})
   }
- catch(err){return res.status(500).send({message:err.toString()})};
-}
-else{
-  return res.status(400).send({message:"Email Required"})
-}
+ catch(err){
+  console.log(err);
+  return res.status(500).send({message:err.toString()})};
 }
 
+async function userExists(email){
+    const user= await User.findOne({email:email})
+
+    if(!user){
+    return false;
+  }
+return true;
+
+}
 
 
 module.exports={textRequest,fileUpload,getAllConversation,getAllQuestions}
