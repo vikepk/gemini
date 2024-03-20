@@ -1,17 +1,35 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+import 'package:gemini/features/home/model/question.model.dart';
+import 'package:gemini/features/home/widget.dart';
+import 'package:gemini/service/api_service.dart';
 import 'package:gemini/utils/constant.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  String token;
+  Home({super.key, required this.token});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  late Map<String, dynamic> jwtDecodedToken;
+  late Future<List<QuestionItem>> qns;
+  var user_name;
+  var email;
+  void initState() {
+    print(widget.token);
+    super.initState();
+    jwtDecodedToken = JwtDecoder.decode(widget.token);
+    user_name = jwtDecodedToken['name'];
+    email = jwtDecodedToken['email'];
+    // getData();
+    qns = ApiService().get_Question(email);
+    print(user_name);
+    print(email);
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextEditingController _textController = TextEditingController();
@@ -28,42 +46,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              padding: EdgeInsets.all(40),
-              decoration: BoxDecoration(
-                color: Colors.green,
-              ),
-              child: Text(
-                'Chats',
-                style: KTitle1,
-              ),
-            ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: HomeDrawer(qns, context, user_name, email),
       appBar: AppBar(
         backgroundColor: KGreen,
         centerTitle: true,

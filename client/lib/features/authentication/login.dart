@@ -3,10 +3,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini/features/authentication/signup.dart';
-import 'package:gemini/features/home/home.dart';
 import 'package:gemini/service/api_service.dart';
 import 'package:gemini/utils/constant.dart';
-import 'package:gemini/utils/notifymessage.dart';
 
 class LoginPage extends StatelessWidget {
   TextEditingController email = TextEditingController();
