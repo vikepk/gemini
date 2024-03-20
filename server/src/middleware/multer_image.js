@@ -1,6 +1,6 @@
 const multer=require('multer');
 const moment=require('moment-timezone');
-moment.utc(330).format()
+const path = require('path');
 let allowedExtension = ['image/jpeg', 'image/webp', 'image/png','image/heic','image/heif'];
 const fileFilter=(req,file,cb)=>{
 if(allowedExtension.includes(file.mimetype)){
@@ -13,7 +13,7 @@ if(allowedExtension.includes(file.mimetype)){
 }
 const storage =multer.diskStorage({
 destination:function(req,file,cb){
-    cb(null,'./uploads/');
+    cb(null, path.join(__dirname, '/uploads/'));
 },
 filename:function(req,file,cb){
     cb(null, `${moment().utcOffset("+05:30").valueOf().toString()}.${file.originalname.split(".").pop()}` );
