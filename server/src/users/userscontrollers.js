@@ -1,6 +1,7 @@
 const User=require("./userSchema");
 const bcrypt=require("bcrypt");
 const jwt = require('jsonwebtoken');
+const { options } = require("./usersroutes");
 
 const userSignUp=async (req,res)=>{
 try{
@@ -50,7 +51,9 @@ try{
     }
     let jwtSecretKey = process.env.JWT_SECRET_KEY;
     let data={name:user.name,email:user.email};
-    const token=jwt.sign(data,jwtSecretKey);
+    const token=jwt.sign(data,jwtSecretKey,{
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      });
     return res.status(200).send({token:token,message:"Login Successful"});
 }
        
