@@ -42,6 +42,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   connectivity_plus: ^5.0.2
   lottie: ^3.1.0
+  jumping_dot: ^0.0.6
 
 dev_dependencies:
   flutter_test:

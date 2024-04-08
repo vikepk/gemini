@@ -16,6 +16,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late Map<String, dynamic> jwtDecodedToken;
   late Future<List<QuestionItem>> qns;
+  List<Widget> _messages = [];
+  final TextEditingController _textController = TextEditingController();
   var user_name;
   var email;
   void initState() {
@@ -32,12 +34,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _textController = TextEditingController();
-    List<String> _messages = [];
-
     void _handleSubmitted(String text) {
       setState(() {
-        _messages.add(text);
+        _messages.add(MsgBubble(isMe: true, text: text, user: "You"));
       });
       _textController.clear();
       // Send message to backend or handle message receiving logic
@@ -58,10 +57,8 @@ class _HomeState extends State<Home> {
             child: ListView.builder(
               itemCount: _messages.length,
               itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(_messages[index]),
-                  // Customize appearance for incoming and outgoing messages
-                );
+                return _messages[index];
+                // Customize appearance for incoming and outgoing messages
               },
             ),
           ),
@@ -75,7 +72,7 @@ class _HomeState extends State<Home> {
                     height: 60,
                     margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                     child: TextFormField(
-                      // controller: _model.phoneNumber,
+                      controller: _textController,
                       decoration: InputDecoration(
                         labelText: 'Enter Prompt',
                         labelStyle: KBody1,
@@ -90,20 +87,6 @@ class _HomeState extends State<Home> {
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                             color: KGreen,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.red,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.red,
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(25),

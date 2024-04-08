@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gemini/features/home/model/question.model.dart';
 import 'package:gemini/utils/constant.dart';
+import 'package:jumping_dot/jumping_dot.dart';
 
 Widget HomeDrawer(
     Future<List<QuestionItem>> qns, context, String user_name, String email) {
@@ -18,29 +19,6 @@ Widget HomeDrawer(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Container(
-              //   width: 150,
-              //   height: 50,
-              //   padding: EdgeInsets.all(10),
-              //   decoration: BoxDecoration(
-              //       boxShadow: [
-              //         BoxShadow(
-              //           color: Colors.black.withOpacity(0.5),
-              //           spreadRadius: 1,
-              //           blurRadius: 5,
-              //           offset: Offset(1, 4),
-              //         ),
-              //       ],
-              //       color: Colors.white,
-              //       borderRadius: BorderRadius.circular(30)),
-              //   child: const Align(
-              //     alignment: Alignment.centerLeft,
-              //     child: Text(
-              //       'New Request ->',
-              //       style: KBody1,
-              //     ),
-              //   ),
-              // ),
               const Align(
                 alignment: Alignment.topLeft,
                 child: Text(
@@ -132,4 +110,52 @@ Widget buildQn(BuildContext context, List<QuestionItem> qns) {
       );
     }).toList(),
   );
+}
+
+class MsgBubble extends StatelessWidget {
+  late final text;
+  late final user;
+  bool isMe;
+  MsgBubble({required this.text, required this.user, required this.isMe}) {}
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Material(
+            elevation: 5,
+            borderRadius: isMe
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.zero,
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(50))
+                : BorderRadius.only(
+                    topRight: Radius.circular(50),
+                    topLeft: Radius.zero,
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(50)),
+            color: isMe ? KGreen : Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Text(
+                text,
+                style: TextStyle(fontSize: 15, color: Colors.black),
+              ),
+            ),
+          ),
+          Text(user),
+          JumpingDots(
+            color: Colors.grey,
+            radius: 10,
+            numberOfDots: 3,
+          ),
+        ],
+      ),
+    );
+  }
 }
