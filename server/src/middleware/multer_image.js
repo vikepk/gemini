@@ -13,7 +13,7 @@ if(allowedExtension.includes(file.mimetype)){
 }
 const storage =multer.diskStorage({
 destination:function(req,file,cb){
-    cb(null, path.join(__dirname, '../../uploads/'));
+    cb(null, path.join(__dirname, '/uploads/'));
 },
 filename:function(req,file,cb){
     cb(null, `${moment().utcOffset("+05:30").valueOf().toString()}.${file.originalname.split(".").pop()}` );
