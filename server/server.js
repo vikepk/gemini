@@ -8,7 +8,7 @@ const geminiRouters=require('./src/gemini_request/geminiroutes');
 // const geminicmd=require('./src/gemini/app');
 //For Running Gemini in Cmd
 app.use(express.json());
-app.use('/uploads',express.static('uploads'));
+app.use(express.static(__dirname));
 
 app.get('/server_status',(req,res)=>res.send('<h1>SERVER UP</h1>'));
 
