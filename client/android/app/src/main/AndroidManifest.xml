@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <queries>
+        <package android:name="com.google.android.googlequicksearchbox"/>
+    </queries>
     <application
         android:label="gemini"
         android:name="${applicationName}"

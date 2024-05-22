@@ -25,6 +25,6 @@ class NotifyUserMessage {
           borderRadius: BorderRadius.circular(15.0),
         ),
         elevation: 6.0,
-        duration: Duration(milliseconds: 500)));
+        duration: Duration(milliseconds: 1000)));
   }
 }
