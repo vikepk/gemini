@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gemini/core/connection/connectivity_services.dart';
 import 'package:gemini/features/getstarted/welcome.dart';
 import 'package:gemini/features/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import './service/connectivity_services.dart';
+
 import 'package:lottie/lottie.dart';
 
 late SharedPreferences prefs;
