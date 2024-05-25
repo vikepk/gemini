@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gemini/core/connection/connectivity_services.dart';
-import 'package:gemini/features/getstarted/welcome.dart';
-import 'package:gemini/features/home/home.dart';
+import 'package:gemini/features/authentication/presentation/pages/getStarted.dart';
+import 'package:gemini/features/gemini/presentation/pages/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -15,9 +16,11 @@ void main() async {
   await dotenv.load(fileName: "lib/env/.env");
   prefs = await SharedPreferences.getInstance();
   final connectivityService = ConnectivityService();
-  runApp(MyApp(
-    token: prefs.getString('token'),
-    connectivityService: connectivityService,
+  runApp(ProviderScope(
+    child: MyApp(
+      token: prefs.getString('token'),
+      connectivityService: connectivityService,
+    ),
   ));
 }
 
@@ -69,10 +72,8 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(fontFamily: "NotoSans"),
         debugShowCheckedModeBanner: false,
         home: (widget.token != null && !JwtDecoder.isExpired(widget.token))
-            ? Home(
-                token: widget.token,
-              )
-            : Welcome(),
+            ? Home()
+            : GetStarted(),
       );
     }
   }

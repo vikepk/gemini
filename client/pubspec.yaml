@@ -45,8 +45,9 @@ dependencies:
   jumping_dot: ^0.0.6
   avatar_glow: ^3.0.1
   speech_to_text: ^6.6.1
-  highlight_text: ^1.7.0
   image_picker: ^1.0.7
+  flutter_riverpod: ^2.5.1
+  dartz: ^0.10.1
 
 dev_dependencies:
   flutter_test:

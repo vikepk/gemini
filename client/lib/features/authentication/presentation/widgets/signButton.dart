@@ -1,9 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../../core/constants/constant.dart';
 
-Widget signButton({required String text, required Function callback}) {
+Widget signButton({required callback, required Widget widget}) {
   return FadeInUp(
     duration: const Duration(milliseconds: 1400),
     child: Padding(
@@ -19,18 +20,14 @@ Widget signButton({required String text, required Function callback}) {
               right: BorderSide(color: Colors.black),
             )),
         child: MaterialButton(
-          minWidth: double.infinity,
-          height: 60,
-          onPressed: callback(),
-          color: KGreen,
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-          child: Text(
-            text,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-          ),
-        ),
+            minWidth: double.infinity,
+            height: 60,
+            onPressed: callback,
+            color: KGreen,
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            child: widget),
       ),
     ),
   );

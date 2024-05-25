@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 const Color KGreen = Colors.greenAccent;
 
+const Color KBlack = Colors.black;
+
 const TextStyle KTitle1 = TextStyle(fontSize: 24, fontWeight: FontWeight.w600);
 
 const TextStyle KTitle2 = TextStyle(fontSize: 20, fontWeight: FontWeight.w600);
@@ -17,3 +19,14 @@ class AppQuery {
     return MediaQuery.of(context).size.width;
   }
 }
+
+const String kname = 'name';
+const String kemail = 'email';
+const String kphnumber = 'phoneNumber';
+const String kpassword = 'password';
+const String kmessage = 'message';
+const String ktoken = 'token';
+const String kconversation = 'conversation';
+const String kid = '_id';
+const String kquestion = 'question';
+const String kanswer = 'answer';

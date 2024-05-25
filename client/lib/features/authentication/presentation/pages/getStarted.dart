@@ -1,13 +1,10 @@
-// ignore_for_file: file_names
-
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:gemini/features/authentication/presentation/pages/login.dart';
+import 'package:gemini/features/authentication/presentation/pages/signup.dart';
 
-import 'package:gemini/features/authentication/Login.dart';
-import 'package:gemini/features/authentication/signup.dart';
-
-class Welcome extends StatelessWidget {
-  const Welcome({super.key});
+class GetStarted extends StatelessWidget {
+  const GetStarted({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +39,6 @@ class Welcome extends StatelessWidget {
                       )),
                 ],
               ),
-              // FadeInUp(
-              //     duration: const Duration(milliseconds: 1400),
-              //     child: Container(
-              //       height: MediaQuery.of(context).size.height / 3,
-              //       decoration: const BoxDecoration(
-              //         image: DecorationImage(
-              //           // place to add our image!
-              //           image: AssetImage('assets/illustration.png'),
-              //         ),
-              //       ),
-              //     )),
               Column(
                 children: <Widget>[
                   FadeInUp(

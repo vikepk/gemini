@@ -4,14 +4,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
-import 'package:gemini/features/authentication/login.dart';
-import 'package:gemini/features/home/home.dart';
-import 'package:gemini/features/home/model/answer_model.dart';
-import 'package:gemini/features/home/model/question.model.dart';
+import 'package:gemini/features/gemini/business/entities/qn_ans_entity.dart';
+
 import 'package:gemini/main.dart';
 import 'package:gemini/utils/notifymessage.dart';
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
+
+import '../features/authentication/presentation/pages/login.dart';
+import '../features/gemini/presentation/pages/home.dart';
 
 class ApiService {
   final base_Url = dotenv.env['BASE_URL'];
@@ -28,15 +29,12 @@ class ApiService {
           data: data,
           options: Options(headers: {"Content-Type": "application/json"}));
       if (response.statusCode == 200) {
-        print(response.data);
+        // print(response.data);
         NotifyUserMessage().errMessage(context, response.data['message']);
         prefs.setString("token", response.data['token']);
         //storing token in phone storage
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    Home(token: prefs.getString('token')!)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) => Home()));
       }
       if (response.statusCode == 400) {
         print(response.data);
@@ -81,7 +79,7 @@ class ApiService {
     }
   }
 
-  Future<List<QuestionItem>> get_Question(String email) async {
+  Future<List<QuestionItemEntity>> get_Question(String email) async {
     var data = jsonEncode({"email": email});
     print(data);
     String url = "$base_Url/gemini/getallqns";
@@ -93,12 +91,12 @@ class ApiService {
             "Authorization": token
           }));
       if (response.statusCode == 200) {
-        print(response.data);
+        // print(response.data);
         List<dynamic> conversationJson = response.data['conversation'];
-        List<QuestionItem> qns = conversationJson
-            .map((json) => QuestionItem.fromJson(json))
-            .toList();
-        return qns;
+        // List<QuestionItemEntity> qns = conversationJson
+        //     .map((json) => QuestionItemEntity.fromJson(json))
+        //     .toList();
+        // return qns;
       }
       if (response.statusCode == 400) {
         print("Client Error${response.data}");
@@ -115,7 +113,7 @@ class ApiService {
     return [];
   }
 
-  Future<Answer> text_Request(String email, String question) async {
+  Future<AnswerEntity> text_Request(String email, String question) async {
     var data = jsonEncode({"email": email, "question": question});
 
     String url = "$base_Url/gemini/textreq";
@@ -128,26 +126,26 @@ class ApiService {
           }));
       if (response.statusCode == 200) {
         print(response.data);
-        Answer answerJson = Answer.fromJson(response.data);
+        // AnswerEntity AnswerEntityJson = AnswerEntity.fromJson(response.data);
 
-        return answerJson;
+        // return AnswerEntityJson;
       }
       if (response.statusCode == 400) {
         print("Client Error${response.data}");
-        return Answer();
+        return AnswerEntity();
       }
       if (response.statusCode == 401) {
         print("Client Error${response.data.toString()}");
-        return Answer();
+        return AnswerEntity();
       }
     } on DioException catch (e) {
       print("Error ${e.response?.data}");
-      return Answer();
+      return AnswerEntity();
     }
-    return Answer();
+    return AnswerEntity();
   }
 
-  Future<Answer> img_Request(
+  Future<AnswerEntity> img_Request(
       String email, String question, String imgpath) async {
     Map<String, String> mimeTypes = {
       '.webp': 'image/webp',
@@ -179,22 +177,22 @@ class ApiService {
           }));
       if (response.statusCode == 200) {
         print(response.data);
-        Answer answerJson = Answer.fromJson(response.data);
+        // AnswerEntity AnswerJson = AnswerEntity.fromJson(response.data);
 
-        return answerJson;
+        // return AnswerJson;
       }
       if (response.statusCode == 400) {
         print("Client Error${response.data}");
-        return Answer();
+        return AnswerEntity();
       }
       if (response.statusCode == 401) {
         print("Client Error${response.data.toString()}");
-        return Answer();
+        return AnswerEntity();
       }
     } on DioException catch (e) {
       print("Error ${e.response?.data}");
-      return Answer();
+      return AnswerEntity();
     }
-    return Answer();
+    return AnswerEntity();
   }
 }

@@ -2,11 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:gemini/features/home/model/answer_model.dart';
-import 'package:gemini/features/home/model/question.model.dart';
-import 'package:gemini/features/home/widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gemini/core/constants/constant.dart';
+import 'package:gemini/features/gemini/business/entities/qn_ans_entity.dart';
+import 'package:gemini/features/gemini/presentation/widgets/button.dart';
+import 'package:gemini/features/gemini/presentation/widgets/home_drawer.dart';
+import 'package:gemini/features/gemini/presentation/widgets/img_upload.dart';
+import 'package:gemini/features/gemini/presentation/widgets/msg_bubble.dart';
+import 'package:gemini/features/gemini/presentation/widgets/prompt_textfield.dart';
+
+import 'package:gemini/main.dart';
 import 'package:gemini/service/api_service.dart';
-import 'package:gemini/utils/constant.dart';
 import 'package:gemini/utils/notifymessage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:speech_to_text/speech_to_text.dart' as speechToText;
@@ -14,15 +20,12 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
-class Home extends StatefulWidget {
-  String token;
-  Home({super.key, required this.token});
-
+class Home extends ConsumerStatefulWidget {
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   String _imagepath = '';
   final ImagePicker imgpicker = ImagePicker();
   Future getImage(bool isCamera) async {
@@ -87,27 +90,27 @@ class _HomeState extends State<Home> {
 
   final ApiService _apiService = ApiService();
   late Map<String, dynamic> jwtDecodedToken;
-  late Future<List<QuestionItem>> qns;
+  // late Future<List<QuestionItemEntity>> qns;
   final List<Widget> _messages = [];
   final TextEditingController _textController = TextEditingController();
-  var user_name;
+  String? token;
+  String? user_name;
   bool _isloading = false;
-  var email;
+  String? user_email;
   @override
   void initState() {
-    print(widget.token);
     super.initState();
-    jwtDecodedToken = JwtDecoder.decode(widget.token);
-    user_name = jwtDecodedToken['name'];
-    email = jwtDecodedToken['email'];
-
-    qns = ApiService().get_Question(email);
+    token = prefs.getString(ktoken)!;
+    jwtDecodedToken = JwtDecoder.decode(token!);
+    user_name = jwtDecodedToken['name']!;
+    user_email = jwtDecodedToken['email']!;
 
     speech = speechToText.SpeechToText();
   }
 
   @override
   Widget build(BuildContext context) {
+    // final qns=ref.read(geminiQuestionsProvider(UserEntity(email: user_email)));
     void _textRequest(String qn) async {
       setState(() {
         _messages.add(MsgBubble(
@@ -123,7 +126,7 @@ class _HomeState extends State<Home> {
         _isloading = true;
       });
 
-      Answer textAns = await _apiService.text_Request(email, qn);
+      AnswerEntity textAns = await _apiService.text_Request(user_email!, qn);
       print(textAns.answer);
       setState(() {
         _messages.removeLast();
@@ -241,9 +244,9 @@ class _HomeState extends State<Home> {
                                       suffix: IconButton(
                                           onPressed: () async {
                                             setState(() => _isloading = true);
-                                            Answer ans =
+                                            AnswerEntity ans =
                                                 await _apiService.img_Request(
-                                                    email,
+                                                    user_email!,
                                                     _textController.text,
                                                     _imagepath);
                                             setState(() => _isloading = false);
@@ -267,7 +270,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      drawer: HomeDrawer(qns, context, user_name, email),
+      drawer: HomeDrawer(email: user_email!, name: user_name!),
       appBar: AppBar(
         backgroundColor: KGreen,
         centerTitle: true,
@@ -276,89 +279,41 @@ class _HomeState extends State<Home> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _messages[index];
-                // Customize appearance for incoming and outgoing messages
-              },
-            ),
+            child: _messages.isEmpty
+                ? Center(
+                    child: Text("data"),
+                  )
+                : ListView.builder(
+                    itemCount: _messages.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _messages[index];
+                      // Customize appearance for incoming and outgoing messages
+                    },
+                  ),
           ),
           Container(
             margin: EdgeInsets.only(bottom: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Expanded(
-                  child: Container(
-                    height: 80,
-                    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                    child: TextFormField(
-                      controller: _textController,
-
-                      decoration: InputDecoration(
-                        labelText: 'Enter Prompt',
-                        suffix: _isloading
-                            ? CircularProgressIndicator(
-                                color: KGreen,
-                                strokeWidth: 2,
-                              )
-                            : null,
-                        labelStyle: KBody1,
-                        hintStyle: KBody1,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: KGreen,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: KGreen,
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                      ),
-                      style: KBody1,
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      // validator: (value) => validatePhoneNumber(value!),
-                    ),
-                  ),
+                PromptTextfield(
+                  value: _textController,
+                  isloading: false,
                 ),
-                AvatarGlow(
-                  animate: isListen,
-                  glowColor: KGreen,
-                  glowShape: BoxShape.circle,
-                  duration: Duration(milliseconds: 1000),
-                  glowRadiusFactor: 1,
-                  repeat: true,
-                  child: IconButton(
-                    icon: Icon(isListen ? Icons.mic : Icons.mic_none),
-                    onPressed: () {
-                      listen();
+                VoiceButton(isloading: false, callback: listen),
+                BottomButton(
+                    callback: () => _imageRequest(),
+                    iconData: Icons.image_rounded),
+                BottomButton(
+                    callback: () {
+                      if (_textController.text.isNotEmpty &&
+                          !(_textController.text == "LOADING")) {
+                        _textRequest(_textController.text);
+                      } else {
+                        NotifyUserMessage().errMessage(context, "Enter Prompt");
+                      }
                     },
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.image_rounded),
-                  onPressed: () {
-                    _imageRequest();
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    if (_textController.text.isNotEmpty &&
-                        !(_textController.text == "LOADING")) {
-                      _textRequest(_textController.text);
-                    } else {
-                      NotifyUserMessage().errMessage(context, "Enter Prompt");
-                    }
-                  },
-                ),
+                    iconData: Icons.send),
               ],
             ),
           ),
