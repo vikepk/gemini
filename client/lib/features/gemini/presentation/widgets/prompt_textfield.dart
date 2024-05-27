@@ -10,7 +10,7 @@ class PromptTextfield extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        height: 50,
+        height: 65,
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: TextFormField(
           controller: value,
@@ -23,24 +23,24 @@ class PromptTextfield extends StatelessWidget {
                     strokeWidth: 2,
                   )
                 : null,
-            labelStyle: KBody1,
-            hintStyle: KBody1,
+            labelStyle: KBody1.copyWith(color: Colors.white),
+            hintStyle: KBody1.copyWith(color: Colors.white),
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: KGreen,
-                width: 1.0,
+                width: 2.0,
               ),
               borderRadius: BorderRadius.circular(25),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: KGreen,
-                width: 1.0,
+                width: 2.0,
               ),
               borderRadius: BorderRadius.circular(25),
             ),
           ),
-          style: KBody1,
+          style: KBody1.copyWith(color: Colors.white),
           maxLines: null,
           keyboardType: TextInputType.multiline,
           // validator: (value) => validatePhoneNumber(value!),

@@ -4,6 +4,10 @@ const Color KGreen = Colors.greenAccent;
 
 const Color KBlack = Colors.black;
 
+const Color KWhite = Colors.white;
+
+const Color KBackground = Color.fromARGB(30, 132, 132, 132);
+
 const TextStyle KTitle1 = TextStyle(fontSize: 24, fontWeight: FontWeight.w600);
 
 const TextStyle KTitle2 = TextStyle(fontSize: 20, fontWeight: FontWeight.w600);

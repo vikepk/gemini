@@ -15,4 +15,16 @@ class Gemini {
   }) async {
     return await geminiRepository.getQuestions(user: user);
   }
+
+  Future<Either<Failure, AnswerEntity>> textReq(
+      {required UserEntity user, required QuestionItemEntity qn}) async {
+    return await geminiRepository.textReq(user: user, qn: qn);
+  }
+
+  Future<Either<Failure, AnswerEntity>> imgReq(
+      {required UserEntity user,
+      required QuestionItemEntity qn,
+      required String imgPath}) async {
+    return await geminiRepository.imgReq(user: user, qn: qn, imgPath: imgPath);
+  }
 }

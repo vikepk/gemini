@@ -8,7 +8,7 @@ import 'package:gemini/features/gemini/business/usecases/gemini_usecase.dart';
 import 'package:gemini/features/gemini/data/datasources/gemini_remote_data_source.dart';
 import 'package:gemini/features/gemini/data/repositories/gemini_repository_impl.dart';
 
-class GeminiController extends AsyncNotifier<List<QuestionItemEntity>> {
+class GeminiQnController extends AsyncNotifier<List<QuestionItemEntity>> {
   @override
   FutureOr<List<QuestionItemEntity>> build() {
     return [];
@@ -31,9 +31,67 @@ class GeminiController extends AsyncNotifier<List<QuestionItemEntity>> {
   }
 }
 
-final GeminiControllerProvider =
-    AsyncNotifierProvider<GeminiController, List<QuestionItemEntity>>(
-        GeminiController.new);
+final GeminiQnControllerProvider =
+    AsyncNotifierProvider<GeminiQnController, List<QuestionItemEntity>>(
+        GeminiQnController.new);
+
+class GeminiAnsController extends AsyncNotifier<AnswerEntity> {
+  @override
+  AnswerEntity build() {
+    return AnswerEntity(answer: '');
+  }
+
+  Future<void> textReq(
+      {required UserEntity user, required QuestionItemEntity qn}) async {
+    state = const AsyncLoading();
+    try {
+      final respository = GeminiRepositoryImpl(
+          remoteDataSource: GeminiRemoteDataSourceImpl(dio: Dio()));
+      final result = await Gemini(geminiRepository: respository)
+          .textReq(user: user, qn: qn);
+      state = result.fold(
+        (failure) => AsyncValue.error(failure, StackTrace.current),
+        (result) => AsyncValue.data(result),
+      );
+    } catch (error) {
+      state = AsyncValue.error(error, StackTrace.current);
+    }
+  }
+}
+
+final GeminiAnsControllerProvider =
+    AsyncNotifierProvider<GeminiAnsController, AnswerEntity>(
+        GeminiAnsController.new);
+
+class GeminiImgController extends AsyncNotifier<AnswerEntity> {
+  @override
+  AnswerEntity build() {
+    return AnswerEntity(answer: '');
+  }
+
+  Future<void> imgReq(
+      {required UserEntity user,
+      required QuestionItemEntity qn,
+      required String imgPath}) async {
+    state = const AsyncLoading();
+    try {
+      final respository = GeminiRepositoryImpl(
+          remoteDataSource: GeminiRemoteDataSourceImpl(dio: Dio()));
+      final result = await Gemini(geminiRepository: respository)
+          .imgReq(user: user, qn: qn, imgPath: imgPath);
+      state = result.fold(
+        (failure) => AsyncValue.error(failure, StackTrace.current),
+        (result) => AsyncValue.data(result),
+      );
+    } catch (error) {
+      state = AsyncValue.error(error, StackTrace.current);
+    }
+  }
+}
+
+final GeminiImgControllerProvider =
+    AsyncNotifierProvider<GeminiImgController, AnswerEntity>(
+        GeminiImgController.new);
 
 final geminiQuestionsProvider = FutureProvider.autoDispose
     .family<List<QuestionItemEntity>, UserEntity>((ref, user) async {

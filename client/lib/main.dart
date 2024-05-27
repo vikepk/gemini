@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Lottie.asset("assets/lottie/network_error.json")
+                Lottie.asset("assets/lottie/network_error.json"),
                 // Text('Check Your Network Connection', style: KTitle1),
               ],
             ),

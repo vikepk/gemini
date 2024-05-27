@@ -24,7 +24,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .read(GeminiControllerProvider.notifier)
+          .read(GeminiQnControllerProvider.notifier)
           .getQuestions(user: UserEntity(email: widget.email));
     });
   }
@@ -39,10 +39,10 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
           (route) => false);
     }
 
-    final state = ref.watch(GeminiControllerProvider);
+    final state = ref.watch(GeminiQnControllerProvider);
 
     ref.listen<AsyncValue>(
-      GeminiControllerProvider,
+      GeminiQnControllerProvider,
       (_, state) {
         if (!state.isLoading && state.hasError) {
           NotifyUserMessage.notifyType(
@@ -52,6 +52,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
     );
 
     return Drawer(
+      backgroundColor: Colors.black,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -120,11 +121,18 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
           state.when(
             data: (questions) {
               return questions.isEmpty
-                  ? const Center(child: Text('No questions found'))
+                  ? Center(
+                      child: Text(
+                      'No questions found',
+                      style: KBody1.copyWith(color: KWhite),
+                    ))
                   : Column(
                       children: questions.map((qn) {
                         return ListTile(
-                          title: Text(qn.question),
+                          title: Text(
+                            qn.question,
+                            style: TextStyle(color: Colors.white),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             // Do something with the tapped item
@@ -136,7 +144,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
             error: (error, stackTrace) => Center(
               child: TextButton(
                 onPressed: () {
-                  ref.invalidate(GeminiControllerProvider);
+                  ref.invalidate(GeminiQnControllerProvider);
                 },
                 child: Text(
                   error is DioException ? "Network Error" : error.toString(),

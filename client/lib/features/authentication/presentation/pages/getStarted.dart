@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:gemini/core/constants/constant.dart';
 import 'package:gemini/features/authentication/presentation/pages/login.dart';
 import 'package:gemini/features/authentication/presentation/pages/signup.dart';
 
@@ -9,6 +10,7 @@ class GetStarted extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: KBackground,
       body: SafeArea(
         child: Container(
           width: double.infinity,
@@ -25,7 +27,9 @@ class GetStarted extends StatelessWidget {
                       child: const Text(
                         "Welcome",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 30),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                            color: KWhite),
                       )),
                   const SizedBox(
                     height: 20,
@@ -57,9 +61,11 @@ class GetStarted extends StatelessWidget {
                             side: const BorderSide(color: Colors.black),
                             borderRadius: BorderRadius.circular(50)),
                         child: const Text(
-                          "Login",
+                          "Log In",
                           style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 18),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                              color: KWhite),
                         ),
                       )),
                   const SizedBox(
@@ -92,9 +98,11 @@ class GetStarted extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50)),
                           child: const Text(
-                            "Sign up",
+                            "Sign Up",
                             style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 18),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                color: KBlack),
                           ),
                         ),
                       ))

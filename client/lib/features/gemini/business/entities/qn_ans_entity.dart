@@ -1,9 +1,9 @@
 class QuestionItemEntity {
-  final String id;
+  final String? id;
   final String question;
 
   const QuestionItemEntity({
-    required this.id,
+    this.id,
     required this.question,
   });
 }

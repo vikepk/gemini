@@ -6,4 +6,10 @@ import 'package:gemini/features/gemini/business/entities/qn_ans_entity.dart';
 abstract class GeminiRepository {
   Future<Either<Failure, List<QuestionItemEntity>>> getQuestions(
       {required UserEntity user});
+  Future<Either<Failure, AnswerEntity>> textReq(
+      {required UserEntity user, required QuestionItemEntity qn});
+  Future<Either<Failure, AnswerEntity>> imgReq(
+      {required UserEntity user,
+      required QuestionItemEntity qn,
+      required String imgPath});
 }

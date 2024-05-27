@@ -34,27 +34,30 @@ class MsgBubble extends StatelessWidget {
                           File(imgpath!),
                         ),
                       )
-                    : SizedBox(),
+                    : const SizedBox(),
                 Material(
                   elevation: 5,
                   borderRadius: isMe
-                      ? BorderRadius.only(
-                          topLeft: Radius.circular(50),
+                      ? const BorderRadius.only(
+                          topLeft: const Radius.circular(50),
                           topRight: Radius.zero,
                           bottomLeft: Radius.circular(50),
                           bottomRight: Radius.circular(50))
-                      : BorderRadius.only(
+                      : const BorderRadius.only(
                           topRight: Radius.circular(50),
                           topLeft: Radius.zero,
                           bottomLeft: Radius.circular(50),
                           bottomRight: Radius.circular(50)),
-                  color: isMe ? KGreen : Colors.white,
+                  color:
+                      isMe ? KGreen : const Color.fromARGB(30, 132, 132, 132),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
                     child: Text(
                       text,
-                      style: TextStyle(fontSize: 15, color: Colors.black),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: isMe ? Colors.black : Colors.white),
                     ),
                   ),
                 ),
@@ -71,7 +74,7 @@ class MsgBubble extends StatelessWidget {
                   children: [
                     Material(
                       elevation: 5,
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                           topLeft: Radius.zero,
                           topRight: Radius.circular(50),
                           bottomLeft: Radius.circular(50),

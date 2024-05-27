@@ -9,16 +9,23 @@ class VoiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AvatarGlow(
-      animate: isloading,
-      glowColor: KGreen,
-      glowShape: BoxShape.circle,
-      duration: Duration(milliseconds: 1000),
-      glowRadiusFactor: 1,
-      repeat: true,
-      child: IconButton(
-        icon: Icon(isloading ? Icons.mic : Icons.mic_none),
-        onPressed: callback,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(50)),
+      child: AvatarGlow(
+        animate: isloading,
+        glowColor: KGreen,
+        glowShape: BoxShape.rectangle,
+        glowBorderRadius: BorderRadius.circular(25),
+        duration: Duration(milliseconds: 1000),
+        glowRadiusFactor: 1,
+        repeat: true,
+        child: IconButton(
+          icon: Icon(
+            isloading ? Icons.mic : Icons.mic_none,
+          ),
+          onPressed: callback,
+        ),
       ),
     );
   }
@@ -32,7 +39,9 @@ class BottomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      color: Colors.white,
       icon: Icon(iconData),
+      iconSize: 30,
       onPressed: callback,
     );
   }

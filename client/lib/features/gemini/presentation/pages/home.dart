@@ -1,22 +1,23 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gemini/core/constants/constant.dart';
+import 'package:gemini/features/authentication/business/entities/user_entity.dart';
 import 'package:gemini/features/gemini/business/entities/qn_ans_entity.dart';
+import 'package:gemini/features/gemini/presentation/providers/gemini_provider.dart';
+import 'package:gemini/features/gemini/presentation/providers/loading_provider.dart';
+import 'package:gemini/features/gemini/presentation/providers/message_provider.dart';
 import 'package:gemini/features/gemini/presentation/widgets/button.dart';
 import 'package:gemini/features/gemini/presentation/widgets/home_drawer.dart';
 import 'package:gemini/features/gemini/presentation/widgets/img_upload.dart';
+import 'package:gemini/features/gemini/presentation/widgets/invite.dart';
 import 'package:gemini/features/gemini/presentation/widgets/msg_bubble.dart';
 import 'package:gemini/features/gemini/presentation/widgets/prompt_textfield.dart';
-
 import 'package:gemini/main.dart';
-import 'package:gemini/service/api_service.dart';
 import 'package:gemini/utils/notifymessage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_to_text.dart' as speechToText;
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
@@ -47,10 +48,9 @@ class _HomeState extends ConsumerState<Home> {
           setState(() {
             _imagepath = pickedFile.path;
           });
-          // Proceed with further processing
         } else {
           print('File extension $fileExt is not allowed.');
-          // Handle error or other actions
+
           NotifyUserMessage()
               .errMessage(context, "Image File format not Supported");
         }
@@ -66,36 +66,12 @@ class _HomeState extends ConsumerState<Home> {
 
   bool isListen = false;
 
-  void listen() async {
-    if (!isListen) {
-      bool avail = await speech.initialize();
-      if (avail) {
-        setState(() {
-          isListen = true;
-        });
-        speech.listen(onResult: (value) {
-          setState(() {
-            String textString = value.recognizedWords;
-            _textController.text = textString;
-          });
-        });
-      }
-    } else {
-      setState(() {
-        isListen = false;
-      });
-      speech.stop();
-    }
-  }
-
-  final ApiService _apiService = ApiService();
   late Map<String, dynamic> jwtDecodedToken;
-  // late Future<List<QuestionItemEntity>> qns;
-  final List<Widget> _messages = [];
+
   final TextEditingController _textController = TextEditingController();
   String? token;
   String? user_name;
-  bool _isloading = false;
+
   String? user_email;
   @override
   void initState() {
@@ -110,212 +86,272 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // final qns=ref.read(geminiQuestionsProvider(UserEntity(email: user_email)));
-    void _textRequest(String qn) async {
-      setState(() {
-        _messages.add(MsgBubble(
-            isMe: true, text: qn, user: "You", isloading: false, imgpath: ""));
-        _messages.add(MsgBubble(
-          isMe: false,
-          text: qn,
-          user: "Gemini",
-          isloading: true,
-          imgpath: "",
-        ));
-        _textController.text = "LOADING";
-        _isloading = true;
-      });
+    final isloading = ref.watch(loadingStateProvider);
+    final messageNotifier = ref.read(MessageNotifierProvider.notifier);
+    final messages = ref.watch(MessageNotifierProvider);
+    final loadingNotifier = ref.read(loadingStateProvider.notifier);
+    final geminiAnsNotifier = ref.read(GeminiAnsControllerProvider.notifier);
+    final geminiImgNotifier = ref.read(GeminiImgControllerProvider.notifier);
 
-      AnswerEntity textAns = await _apiService.text_Request(user_email!, qn);
-      print(textAns.answer);
-      setState(() {
-        _messages.removeLast();
-        _messages.add(MsgBubble(
-          isMe: false,
-          text: textAns.answer,
-          user: "Gemini",
-          isloading: false,
-          imgpath: "",
-        ));
+    void _textRequest(String qn) async {
+      messageNotifier.addMessage(MsgBubble(
+          isMe: true, text: qn, user: "You", isloading: false, imgpath: ""));
+
+      messageNotifier.addMessage(MsgBubble(
+        isMe: false,
+        text: qn,
+        user: "Gemini",
+        isloading: true,
+        imgpath: "",
+      ));
+
+      _textController.text = "LOADING";
+
+      loadingNotifier.state = true;
+
+      try {
+        await geminiAnsNotifier.textReq(
+          user: UserEntity(email: user_email),
+          qn: QuestionItemEntity(question: qn),
+        );
+
+        final geminiAns = ref.read(GeminiAnsControllerProvider);
+
+        geminiAns.when(
+          data: (ans) {
+            messageNotifier.deleteMessage();
+
+            messageNotifier.addMessage(MsgBubble(
+              isMe: false,
+              text: ans.answer,
+              user: "Gemini",
+              isloading: false,
+              imgpath: "",
+            ));
+          },
+          error: (error, stack) {
+            NotifyUserMessage().errMessage(context, 'Try Again Later');
+          },
+          loading: () {},
+        );
+      } catch (error) {
+        // Handle any unexpected errors
+        NotifyUserMessage().errMessage(context, 'Unexpected Error Occurred');
+      } finally {
         _textController.clear();
-        _isloading = false;
-      });
-      // Send message to backend or handle message receiving logic
+        loadingNotifier.state = false;
+      }
+    }
+
+    void listen() async {
+      if (!isloading) {
+        bool avail = await speech.initialize();
+        if (avail) {
+          ref.read(loadingStateProvider.notifier).startLoading();
+
+          speech.listen(onResult: (value) {
+            String textString = value.recognizedWords;
+            _textController.text = textString;
+          });
+        }
+      } else {
+        ref.read(loadingStateProvider.notifier).stopLoading();
+
+        speech.stop();
+      }
     }
 
     void _textToRequest(String qn, String imgpath, String ans) async {
-      setState(() {
-        _messages.add(MsgBubble(
-            isMe: true,
-            text: qn,
-            user: "You",
-            isloading: false,
-            imgpath: imgpath));
-      });
-
-      setState(() {
-        _messages.add(MsgBubble(
-          isMe: false,
-          text: ans,
-          user: "Gemini",
+      messages.add(MsgBubble(
+          isMe: true,
+          text: qn,
+          user: "You",
           isloading: false,
-          imgpath: "",
-        ));
-        _textController.clear();
-      });
-      // Send message to backend or handle message receiving logic
+          imgpath: imgpath));
+
+      messages.add(MsgBubble(
+        isMe: false,
+        text: ans,
+        user: "Gemini",
+        isloading: false,
+        imgpath: "",
+      ));
+      _textController.clear();
     }
 
     void _imageRequest() async {
-      bool _isloading = false;
+      final isloading = ref.read(loadingStateProvider.notifier);
+
       await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return StatefulBuilder(
-              builder: (context, setState) => Dialog(
-                  child: _isloading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: KGreen,
-                          ),
-                        )
-                      : Container(
-                          margin: EdgeInsets.all(20),
-                          height: AppQuery.ScreenHeight(context) * 0.25,
-                          width: AppQuery.ScreenWidth(context) * 0.5,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) => Dialog(
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                height: AppQuery.ScreenHeight(context) * 0.25,
+                width: AppQuery.ScreenWidth(context) * 0.5,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _imagepath.isNotEmpty
+                        ? Stack(
+                            alignment: AlignmentDirectional.center,
                             children: [
-                              _imagepath.isNotEmpty
-                                  ? Stack(
-                                      alignment: AlignmentDirectional.center,
-                                      children: [
-                                        Image(
-                                          filterQuality: FilterQuality.high,
-                                          height:
-                                              AppQuery.ScreenHeight(context) *
-                                                  0.18,
-                                          width: AppQuery.ScreenWidth(context) *
-                                              0.55,
-                                          image: FileImage(
-                                            File(_imagepath),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          bottom:
-                                              AppQuery.ScreenHeight(context) *
-                                                  0.129,
-                                          left: AppQuery.ScreenWidth(context) *
-                                              0.18,
-                                          child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _imagepath = "";
-                                                  _textController.text = "";
-                                                });
-                                              },
-                                              icon: Icon(
-                                                Icons.cancel,
-                                                color: Colors.black,
-                                              )),
-                                        )
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        imageUpload("Camera", () async {
-                                          await getImage(true);
-                                          setState(() {});
-                                        }, Icons.camera),
-                                        imageUpload("Gallery", () async {
-                                          await getImage(false);
-                                          setState(() {});
-                                        }, Icons.upload_file_rounded),
-                                      ],
-                                    ),
-                              Expanded(
-                                child: TextField(
-                                  controller: _textController,
-                                  decoration: InputDecoration(
-                                      hintText: "Enter Prompt",
-                                      suffix: IconButton(
-                                          onPressed: () async {
-                                            setState(() => _isloading = true);
-                                            AnswerEntity ans =
-                                                await _apiService.img_Request(
-                                                    user_email!,
-                                                    _textController.text,
-                                                    _imagepath);
-                                            setState(() => _isloading = false);
-                                            print(ans.answer);
-                                            _textToRequest(_textController.text,
-                                                _imagepath, ans.answer!);
-                                            _imagepath = "";
-                                            Navigator.pop(context);
-                                            setState(() {});
-                                          },
-                                          icon: Icon(Icons.send))),
+                              Image(
+                                filterQuality: FilterQuality.high,
+                                height: AppQuery.ScreenHeight(context) * 0.18,
+                                width: AppQuery.ScreenWidth(context) * 0.55,
+                                image: FileImage(
+                                  File(_imagepath),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: AppQuery.ScreenHeight(context) * 0.129,
+                                left: AppQuery.ScreenWidth(context) * 0.18,
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _imagepath = "";
+                                      _textController.text = "";
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.cancel,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               )
                             ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              imageUpload("Camera", () async {
+                                await getImage(true);
+                                setState(() {});
+                              }, Icons.camera),
+                              imageUpload("Gallery", () async {
+                                await getImage(false);
+                                setState(() {});
+                              }, Icons.upload_file_rounded),
+                            ],
                           ),
-                        )),
-            );
-          });
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        decoration: InputDecoration(
+                          hintText: "Enter Prompt",
+                          suffix: IconButton(
+                            onPressed: () async {
+                              isloading.startLoading();
+                              try {
+                                // Perform the text request
+                                await geminiImgNotifier.imgReq(
+                                    user: UserEntity(email: user_email),
+                                    qn: QuestionItemEntity(
+                                        question: _textController.text),
+                                    imgPath: _imagepath);
+
+                                final geminiImg =
+                                    ref.read(GeminiImgControllerProvider);
+
+                                geminiImg.when(
+                                  data: (ans) {
+                                    messages.add(MsgBubble(
+                                        isMe: true,
+                                        text: _textController.text,
+                                        user: "You",
+                                        isloading: false,
+                                        imgpath: _imagepath));
+
+                                    messages.add(MsgBubble(
+                                      isMe: false,
+                                      text: ans.answer,
+                                      user: "Gemini",
+                                      isloading: false,
+                                      imgpath: "",
+                                    ));
+                                  },
+                                  error: (error, stack) {
+                                    NotifyUserMessage()
+                                        .errMessage(context, 'Try Again Later');
+                                  },
+                                  loading: () {},
+                                );
+                              } catch (error) {
+                                // Handle any unexpected errors
+                                NotifyUserMessage().errMessage(
+                                    context, 'Unexpected Error Occurred');
+                              } finally {
+                                _textController.clear();
+                                loadingNotifier.state = false;
+                              }
+
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.send),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
     }
 
     return Scaffold(
       extendBody: true,
+      backgroundColor: KBackground,
       extendBodyBehindAppBar: true,
       drawer: HomeDrawer(email: user_email!, name: user_name!),
       appBar: AppBar(
-        backgroundColor: KGreen,
+        iconTheme: const IconThemeData(color: KGreen),
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Lottie.asset("assets/lottie/gemini.json", height: 100),
         centerTitle: true,
-        title: Text("Gemini Chat"),
       ),
       body: Column(
         children: <Widget>[
           Expanded(
-            child: _messages.isEmpty
-                ? Center(
-                    child: Text("data"),
-                  )
+            child: messages.isEmpty
+                ? const Invite()
                 : ListView.builder(
-                    itemCount: _messages.length,
+                    itemCount: messages.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return _messages[index];
+                      return messages[index];
                       // Customize appearance for incoming and outgoing messages
                     },
                   ),
           ),
-          Container(
-            margin: EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                PromptTextfield(
-                  value: _textController,
-                  isloading: false,
-                ),
-                VoiceButton(isloading: false, callback: listen),
-                BottomButton(
-                    callback: () => _imageRequest(),
-                    iconData: Icons.image_rounded),
-                BottomButton(
-                    callback: () {
-                      if (_textController.text.isNotEmpty &&
-                          !(_textController.text == "LOADING")) {
-                        _textRequest(_textController.text);
-                      } else {
-                        NotifyUserMessage().errMessage(context, "Enter Prompt");
-                      }
-                    },
-                    iconData: Icons.send),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              PromptTextfield(
+                value: _textController,
+                isloading: isloading,
+              ),
+              VoiceButton(isloading: isloading, callback: listen),
+              BottomButton(
+                  callback: () => _imageRequest(),
+                  iconData: Icons.image_rounded),
+              BottomButton(
+                  callback: () {
+                    if (_textController.text.isNotEmpty && !(isloading)) {
+                      _textRequest(_textController.text);
+                    } else {
+                      NotifyUserMessage().errMessage(
+                          context, isloading ? "Loading" : "Enter Prompt");
+                    }
+                  },
+                  iconData: Icons.send),
+            ],
           ),
         ],
       ),
