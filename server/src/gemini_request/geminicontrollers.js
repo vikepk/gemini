@@ -82,10 +82,12 @@ if(!await userExists(email)){
       mimeType: req.file['mimetype'],
     }
   }
+  console.log(image)
   const answer= await geminiAPI_image(prompt,image);
 
   if (answer instanceof Error) {
-   return res.status(500).send({err:"Try Again Later"})
+    console.log(Error.toString())
+   return res.status(500).send({message:"Try Again Later"})
   }
 
 const  geminidb=new Gemini({email:email,question:prompt,answer:answer,imgName:`${process.env.BASE_URL}/uploads/${req.file.filename}`});

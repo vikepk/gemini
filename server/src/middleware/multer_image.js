@@ -21,5 +21,6 @@ filename:function(req,file,cb){
 }
 })
 const upload=multer({storage:storage,fileFilter:fileFilter,limits:{fileSize:1024*1024*4}});
-
+console.log(upload.single('image'))
+console.log(upload)
 module.exports=upload.single('image');
