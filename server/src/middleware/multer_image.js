@@ -13,8 +13,6 @@ if(allowedExtension.includes(file.mimetype)){
 }
 const storage =multer.diskStorage({
 destination:function(req,file,cb){
-    console.log(path.join(__dirname, '../../uploads/'));
-    console.log(__dirname);
     cb(null, path.join(__dirname, '../../uploads/'));
 },
 filename:function(req,file,cb){
@@ -23,6 +21,5 @@ filename:function(req,file,cb){
 }
 })
 const upload=multer({storage:storage,fileFilter:fileFilter,limits:{fileSize:1024*1024*4}});
-console.log(upload.single('image'))
-console.log(upload)
+
 module.exports=upload.single('image');

@@ -43,6 +43,7 @@ const textRequest=async (req,res)=>{
    }
     const answer= await geminiAPI_text(question);
     if (answer instanceof Error){
+      console.log(Error);
       return res.status(500).send({message:"Try again later"});
     }
     const  geminidb=new Gemini({email:email,question:question,answer:answer});
@@ -82,7 +83,7 @@ if(!await userExists(email)){
       mimeType: req.file['mimetype'],
     }
   }
-  console.log(image)
+
   const answer= await geminiAPI_image(prompt,image);
 
   if (answer instanceof Error) {

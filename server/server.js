@@ -8,7 +8,8 @@ const path=require('path')
 // const geminicmd=require('./src/gemini/app');
 //For Running Gemini in Cmd
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'../../uploads/')));
+app.use('/uploads',express.static('uploads'));
+
 
 app.get('/server_status',(req,res)=>res.send('<h1>SERVER UP</h1>'));
 
