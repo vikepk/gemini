@@ -20,7 +20,7 @@ async function geminiAPI_text(question){
 
 
 async function geminiAPI_image(prompt,image){
-  const model=genAI.getGenerativeModel({model: "gemini-pro-vision"})
+  const model=genAI.getGenerativeModel({model: "gemini-1.5-flash"})
   try{
   const geminiAnswer=await model.generateContent([prompt,image])
   const response=geminiAnswer.response;
